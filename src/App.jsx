@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, createContext } from "react";
 import { Navigation } from "./components/navigation";
 import { Header } from "./components/header";
 import { Features } from "./components/features";
@@ -11,11 +11,15 @@ import { Contact } from "./components/contact";
 import JsonData from "./data/data.json";
 import SmoothScroll from "smooth-scroll";
 import "./App.css";
+import Component1 from "./components/Component1";
+import Component2 from "./components/Component2";
 
 export const scroll = new SmoothScroll('a[href*="#"]', {
   speed: 1000,
   speedAsDuration: true,
 });
+
+export const PeopleContext = createContext();
 
 const App = () => {
   const [landingPageData, setLandingPageData] = useState({});
@@ -23,17 +27,36 @@ const App = () => {
     setLandingPageData(JsonData);
   }, []);
 
+  const [people, setPeople] = useState([]);
+
+  const addToTable = (payload) => {
+    setPeople((prevState) => {
+      const tmpPeople = [...prevState];
+      tmpPeople.push(payload);
+      tmpPeople.sort((a, b) => new Date(a.birth) - new Date(b.birth));
+      return tmpPeople;
+    });
+  };
+
   return (
     <div>
-      <Navigation />
-      <Header data={landingPageData.Header} />
-      <Features data={landingPageData.Features} />
-      <About data={landingPageData.About} />
-      <Services data={landingPageData.Services} />
-      <Gallery data={landingPageData.Gallery}/>
-      <Testimonials data={landingPageData.Testimonials} />
-      {/* <Team data={landingPageData.Team} /> */}
-      <Contact data={landingPageData.Contact} />
+      <div>
+        <Navigation />
+        <Header data={landingPageData.Header} />
+        <div style={{ height: 200 }}>
+          <PeopleContext.Provider value={{ addToTable, people }}>
+            <Component1 />
+            <Component2 />
+          </PeopleContext.Provider>
+        </div>
+        <Features data={landingPageData.Features} />
+        <About data={landingPageData.About} />
+        <Services data={landingPageData.Services} />
+        <Gallery data={landingPageData.Gallery} />
+        <Testimonials data={landingPageData.Testimonials} />
+        {/* <Team data={landingPageData.Team} /> */}
+        <Contact data={landingPageData.Contact} />
+      </div>
     </div>
   );
 };
